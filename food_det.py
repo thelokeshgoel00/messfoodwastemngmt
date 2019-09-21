@@ -1,55 +1,41 @@
+import numpy as np
 import cv2
-#import numpy as np
-from PIL import Image
-# function to get the gray color pixel's location 
-def gray_pixels(image):
-    # minimum and maximum range of gray color
-    r_min=50
-    r_max=110
-    g_min=50
-    g_max=110
-    b_min=50
-    b_max=110
-    # creating a set of pixels within the range
-    gray_pix=set()
-    img=Image.open(image)
-    rgb=img.convert('RGB')
-    # traversing through all pixels
-    for i in range(img.size[0]):
-        for j in range(img.size[1]):
-            r,g,b=rgb.getpixel((i,j))
-            if r>=r_min and r<=r_max and g>=g_min and g<=g_max and b>=b_min and b<=b_max:
-                gray_pix.add((i,j))
-# returning the locations of all gray pixels
-    return len(gray_pix)
+im=cv2.imread("C:/Users/user/Desktop/r2.jpg")
+imgray=cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
+imgray = cv2.Canny(imgray, 30, 200)
+#ret,thresh=cv2.threshold(imgray,10,20,cv2.THRESH_BINARY)
+contours,hierarchy=cv2.findContours(imgray,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+cv2.drawContours(im,contours,-1,(255,255,0),3)
 
+# scale_percent = 20 # percent of original size
+# width = int(im.shape[1] * scale_percent / 100)
+# height = int(im.shape[0] * scale_percent / 100)
+# dim = (width, height)
+# resize image
+# resized = cv2.resize(im, dim, interpolation = cv2.INTER_AREA)
 
-
-img='C:/Users/user/Desktop/sports.jpg'
-#cv2.namedWindow("image",cv2.WINDOW_NORMAL)
-#
-#=set()
-plate=gray_pixels(img)
-
-#plate=len(gray_pix)
-img=cv2.imread(img,1)
-total=0
-for row in img:
-        for elem in row:
-                total=total+1
-                #print(elem)
-                '''if elem==0:
-                        black=black+1
-                elif elem>250:
-                        white=white+1'''
-                
-
-#cv2.waitKey(0)
-food=total-plate
-percentage=food/total
-print(food)
-print(total)
-print("Food wasted is ")
-print(percentage)
-if cv2.waitKey(0) == ord('q'):
-	cv2.destroyAllWindows()
+# #cv2.resize()
+cv2.imshow('frame',im)
+max=0
+count=0
+for i in range(len(contours)):
+    cnt=contours[i]
+    area=cv2.contourArea(cnt)
+    print(area)
+    if max<area:
+        max=area
+thresh=max/4
+for i in range(len(contours)):
+    cnt=contours[i]
+    area=cv2.contourArea(cnt)
+    if area>thresh:
+        count=count+1
+'''print contours
+print hierarchy'''
+#print(sec_max)
+if count>2:
+    print("alert")
+else:
+    print("no alert")
+print(max)
+cv2.waitKey(0)
