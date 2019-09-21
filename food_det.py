@@ -22,3 +22,34 @@ def gray_pixels(image):
                 gray_pix.add((i,j))
 # returning the locations of all gray pixels
     return len(gray_pix)
+
+
+
+img='C:/Users/user/Desktop/sports.jpg'
+#cv2.namedWindow("image",cv2.WINDOW_NORMAL)
+#
+#=set()
+plate=gray_pixels(img)
+
+#plate=len(gray_pix)
+img=cv2.imread(img,1)
+total=0
+for row in img:
+        for elem in row:
+                total=total+1
+                #print(elem)
+                '''if elem==0:
+                        black=black+1
+                elif elem>250:
+                        white=white+1'''
+                
+
+#cv2.waitKey(0)
+food=total-plate
+percentage=food/total
+print(food)
+print(total)
+print("Food wasted is ")
+print(percentage)
+if cv2.waitKey(0) == ord('q'):
+	cv2.destroyAllWindows()
