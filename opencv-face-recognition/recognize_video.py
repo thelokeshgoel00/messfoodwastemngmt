@@ -1,43 +1,23 @@
 # USAGE
-# python recognize_video.py --detector face_detection_model \
-#	--embedding-model openface_nn4.small2.v1.t7 \
-#	--recognizer output/recognizer.pickle \
-#	--le output/le.pickle
-
 # import the necessary packages
-from imutils.video import VideoStream
-from imutils.video import FPS
 import numpy as np
-import argparse
+#import argparse
 import imutils
 import pickle
 import time
 import cv2
 import os
-
-# construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--detector", required=True,
-	help="path to OpenCV's deep learning face detector")
-ap.add_argument("-m", "--embedding-model", required=True,
-	help="path to OpenCV's deep learning face embedding model")
-ap.add_argument("-r", "--recognizer", required=True,
-	help="path to model trained to recognize faces")
-ap.add_argument("-l", "--le", required=True,
-	help="path to label encoder")
-ap.add_argument("-c", "--confidence", type=float, default=0.5,
-	help="minimum probability to filter weak detections")
-args = vars(ap.parse_args())
-
+# creating a dictionary
+args={"detector":'face_detection_model',"embedding_model":'openface_nn4.small2.v1.t7',"recognizer":'output/recognizer.pickle',"le":'output/le.pickle',"confidence":0.5}
 # load our serialized face detector from disk
-print("[INFO] loading face detector...")
+print("loading face detector...")
 protoPath = os.path.sep.join([args["detector"], "deploy.prototxt"])
 modelPath = os.path.sep.join([args["detector"],
 	"res10_300x300_ssd_iter_140000.caffemodel"])
 detector = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
 
 # load our serialized face embedding model from disk
-print("[INFO] loading face recognizer...")
+print("loading face recognizer...")
 embedder = cv2.dnn.readNetFromTorch(args["embedding_model"])
 
 # load the actual face recognition model along with the label encoder
@@ -46,20 +26,13 @@ le = pickle.loads(open(args["le"], "rb").read())
 
 # initialize the video stream, then allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-vs = VideoStream(src=0).start()
-time.sleep(2.0)
-
-# start the FPS throughput estimator
-fps = FPS().start()
-
-# loop over frames from the video file stream
+#capturing the video through webcam
+cap=cv2.VideoCapture(0)
+# loop over frames from the video
 while True:
-	# grab the frame from the threaded video stream
-	frame = vs.read()
+	ret,frame=cap.read()
 
-	# resize the frame to have a width of 600 pixels (while
-	# maintaining the aspect ratio), and then grab the image
-	# dimensions
+	# resize the frame to have a width of 600 pixels
 	frame = imutils.resize(frame, width=600)
 	(h, w) = frame.shape[:2]
 
@@ -117,8 +90,8 @@ while True:
 			cv2.putText(frame, text, (startX, y),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
-	# update the FPS counter
-	fps.update()
+	
+	
 
 	# show the output frame
 	cv2.imshow("Frame", frame)
@@ -128,11 +101,6 @@ while True:
 	if key == ord("q"):
 		break
 
-# stop the timer and display FPS information
-fps.stop()
-print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-
-# do a bit of cleanup
+cap.release()
 cv2.destroyAllWindows()
-vs.stop()
+
